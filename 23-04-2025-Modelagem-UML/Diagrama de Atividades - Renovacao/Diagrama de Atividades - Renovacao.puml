@@ -1,0 +1,23 @@
+@startuml
+start
+:Aluno solicita renovação;
+:Sistema verifica autenticação;
+if (empréstimo existe?) then (sim)
+    if (renovacoes == 0) then (primeira)
+        if (existe reserva para o livro?) then (sim)
+            :Sistema nega renovação;
+            :notificarAluno("Não é possível renovar pois há reservas");
+        else (não)
+            :Sistema incrementa renovacoes;
+            :atualizar dataPrevistaDevolucao;
+            :notificarAluno("Renovação concedida");
+        endif
+    else (não)
+        :Sistema nega renovação;
+        :notificarAluno("Renovação já realizada");
+    endif
+else (não)
+    :erro("Empréstimo não encontrado");
+endif
+stop
+@enduml

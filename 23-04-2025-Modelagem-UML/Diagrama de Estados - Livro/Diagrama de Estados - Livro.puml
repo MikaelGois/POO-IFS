@@ -1,0 +1,11 @@
+@startuml
+[*] --> Disponivel
+Disponivel --> Reservado : reservar()
+Reservado --> Disponivel : cancelarReserva()
+Disponivel --> Emprestado : emprestar()
+Emprestado --> Disponivel : devolver()
+Emprestado --> Atrasado : dataPrevistaDevolucao excedida
+Atrasado --> Emprestado : renovar() / se permitido
+Atrasado --> Disponivel : devolver() / se multa foi paga
+Reservado --> Emprestado : retiradaReserva()
+@enduml
