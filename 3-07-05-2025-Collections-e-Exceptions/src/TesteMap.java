@@ -1,6 +1,4 @@
 // TesteMap.java: Demonstra diferentes implementações de Map e suas características de ordenação
-package src;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,7 +35,7 @@ public class TesteMap {
 		 * - Chave: livro emprestadp
 		 * - Valor: aluno que emprestou o livro
 		 */
-		Map<###, ###> map = new HashMap<>();
+		Map<Livro, Aluno>map = new HashMap<>();
 
 		/*
 		 * Adição dos seguintes empréstimo
@@ -45,9 +43,9 @@ public class TesteMap {
 		 * - O Tempo e o Vento 	->	Maria
 		 * - Vidas Secas		->	João
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, maria);
+		map.put(tempo, maria);
+		map.put(vidas, joao);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("HashMap após primeira inserção\n");
@@ -58,8 +56,8 @@ public class TesteMap {
 		 * - Dom Casmurro			->	Joaquim (livro emprestado)
 		 * - Grande Sertão: Veredas ->	Joaquim
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, joaquim);
+		map.put(sertao, joaquim);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nHashMap após segunda inserção\n");
@@ -70,8 +68,8 @@ public class TesteMap {
 		 * - Dom Casmurro
 		 * - O Tempo e o Vento
 		 */
-		map.###(###);
-		map.###(###);
+		map.remove(dom);
+		map.remove(tempo);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nHashMap após remoção\n");
@@ -95,9 +93,9 @@ public class TesteMap {
 		 * - O Tempo e o Vento 	->	Maria
 		 * - Vidas Secas		->	João
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, maria);
+		map.put(tempo, maria);
+		map.put(vidas, joao);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("LinkedHashMap após primeira inserção\n");
@@ -108,8 +106,8 @@ public class TesteMap {
 		 * - Dom Casmurro			->	Joaquim (livro emprestado)
 		 * - Grande Sertão: Veredas ->	Joaquim
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, joaquim);
+		map.put(sertao, joaquim);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nLinkedHashMap após segunda inserção\n");
@@ -120,8 +118,8 @@ public class TesteMap {
 		 * - Dom Casmurro
 		 * - O Tempo e o Vento
 		 */
-		map.###(###);
-		map.###(###);
+		map.remove(dom);
+		map.remove(tempo);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nLinkedHashMap após remoção\n");
@@ -146,9 +144,9 @@ public class TesteMap {
 		 * - O Tempo e o Vento 	->	Maria
 		 * - Vidas Secas		->	João
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, maria);
+		map.put(tempo, maria);
+		map.put(vidas, joao);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("TreeMap (isbn) após primeira inserção\n");
@@ -159,8 +157,8 @@ public class TesteMap {
 		 * - Dom Casmurro			->	Joaquim (livro emprestado)
 		 * - Grande Sertão: Veredas ->	Joaquim
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, joaquim);
+		map.put(sertao, joaquim);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nTreeMap (isbn) após segunda inserção\n");
@@ -171,8 +169,8 @@ public class TesteMap {
 		 * - Dom Casmurro
 		 * - O Tempo e o Vento
 		 */
-		map.###(###);
-		map.###(###);
+		map.remove(dom);
+		map.remove(tempo);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nLinkedHashMap (isbn) após remoção\n");
@@ -189,7 +187,7 @@ public class TesteMap {
 		 * - Chave: livro emprestadp
 		 * - Valor: aluno que emprestou o livro
 		 */
-		map = new TreeMap<>(Livro.dataPublicacao());
+		map = new TreeMap<>(Livro.compDataPublicacao);
 
 		/*
 		 * Adição dos seguintes empréstimo
@@ -197,9 +195,9 @@ public class TesteMap {
 		 * - O Tempo e o Vento 	->	Maria
 		 * - Vidas Secas		->	João
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, maria);
+		map.put(tempo, maria);
+		map.put(vidas, joao);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("TreeMap (data publicação) após primeira inserção\n");
@@ -210,8 +208,8 @@ public class TesteMap {
 		 * - Dom Casmurro			->	Joaquim (livro emprestado)
 		 * - Grande Sertão: Veredas ->	Joaquim
 		 */
-		map.###(###, ###);
-		map.###(###, ###);
+		map.put(dom, joaquim);
+		map.put(sertao, joaquim);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nTreeMap (data publicação) após segunda inserção\n");
@@ -222,8 +220,8 @@ public class TesteMap {
 		 * - Dom Casmurro
 		 * - O Tempo e o Vento
 		 */
-		map.###(###);
-		map.###(###);
+		map.remove(dom);
+		map.remove(tempo);
 
 		// Impressão do mapa de empréstimos
 		System.out.printf("\nLinkedHashMap (data publicação) após remoção\n");
@@ -231,7 +229,7 @@ public class TesteMap {
 	}
 
     // Percorre todas as chaves do map e imprime empréstimos
-    private static void imprimirEmprestimo(Map<###, ###> map) {
+    private static void imprimirEmprestimo(Map<Livro, Aluno> map) {
         System.out.println("Lista de empréstimos:");
         int i = 0;
         for (Livro l : map.keySet()) {

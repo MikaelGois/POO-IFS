@@ -1,6 +1,4 @@
 // TesteList.java: Demonstra operações básicas e comparações de desempenho entre ArrayList e LinkedList
-package src;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +17,7 @@ public class TesteList {
 
 
         // Cria uma lista dinâmica baseada em array (cresce dinamicamente)
-        List<src.Aluno> list = new ArrayList<>();
+        List<Aluno> list = new ArrayList<>();
 
 		/*
 		 * Adiciona 3 alunos ao fim da lista (operação O(1) amortizada)

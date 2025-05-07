@@ -1,7 +1,5 @@
 // -----------------------------------------------------------
 // TesteSet.java: Demonstra uso de Set (HashSet, LinkedHashSet, TreeSet) e tratamento de duplicatas
-package src;
-
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -19,7 +17,7 @@ public class TesteSet {
     	System.out.println("Parte 1: HashSet: não permite duplicatas, sem ordem garantida\n");
     	
 		// Definição de um conjunto baseado em um HashSet
-		Set<###> set = new HashSet<>();
+		Set<Aluno> set = new HashSet<>();
 
 		/*
 		 * Adição dos alunos no conjunto
@@ -41,9 +39,9 @@ public class TesteSet {
 		 * - Maria S.	2023001 (duplicado)
 		 * - Gessica	2023007
 		 */
-		set.###(new Aluno("2023005", "Joaquim"));
-		set.###(new Aluno("2023001", "Maria S."));
-		set.###(new Aluno("2023007", "Gessica"));
+		set.add(new Aluno("2023005", "Joaquim"));
+		set.add(new Aluno("2023001", "Maria S."));
+		set.add(new Aluno("2023007", "Gessica"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("\nHashSet após segunda inserção\n");
@@ -63,9 +61,9 @@ public class TesteSet {
 		 * - João		2023009
 		 * - Miguel		2023001 (duplicado)
 		 */
-		set.###(new Aluno("2023001", "Maria"));
-		set.###(new Aluno("2023009", "João"));
-		set.###(new Aluno("2023001", "Miguel"));
+		set.add(new Aluno("2023001", "Maria"));
+		set.add(new Aluno("2023009", "João"));
+		set.add(new Aluno("2023001", "Miguel"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("LinkedHashSet após primeira inserção\n");
@@ -77,9 +75,9 @@ public class TesteSet {
 		 * - Maria S.	2023001 (duplicado)
 		 * - Gessica	2023007
 		 */
-		set.###(new Aluno("2023005", "Joaquim"));
-		set.###(new Aluno("2023001", "Maria S."));
-		set.###(new Aluno("2023007", "Gessica"));
+		set.add(new Aluno("2023005", "Joaquim"));
+		set.add(new Aluno("2023001", "Maria S."));
+		set.add(new Aluno("2023007", "Gessica"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("\nLinkedHashSet após segunda inserção\n");
@@ -99,9 +97,9 @@ public class TesteSet {
 		 * - João		2023009
 		 * - Miguel		2023001 (duplicado)
 		 */
-		set.###(new Aluno("2023001", "Maria"));
-		set.###(new Aluno("2023009", "João"));
-		set.###(new Aluno("2023001", "Miguel"));
+		set.add(new Aluno("2023001", "Maria"));
+		set.add(new Aluno("2023009", "João"));
+		set.add(new Aluno("2023001", "Miguel"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("TreeSet (matrícula) após primeira inserção\n");
@@ -113,9 +111,9 @@ public class TesteSet {
 		 * - Maria S.	2023001 (duplicado)
 		 * - Gessica	2023007
 		 */
-		set.###(new Aluno("2023005", "Joaquim"));
-		set.###(new Aluno("2023001", "Maria S."));
-		set.###(new Aluno("2023007", "Gessica"));
+		set.add(new Aluno("2023005", "Joaquim"));
+		set.add(new Aluno("2023001", "Maria S."));
+		set.add(new Aluno("2023007", "Gessica"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("\nTreeSet (matrícula) após segunda inserção\n");
@@ -127,7 +125,7 @@ public class TesteSet {
     	System.out.println("\nParte 4: TreeSet com comparador por nome: ordenação alfabética de nomes\n");
 
 		// Definição de um conjunto baseado em um TreeSet
-		set = new TreeSet<>(Aluno.comparadorNome());
+		set = new TreeSet<>(Aluno.comparadorNome);
 
 		/*
 		 * Adição dos alunos no conjunto
@@ -135,9 +133,9 @@ public class TesteSet {
 		 * - João		2023009
 		 * - Miguel		2023001 (duplicado)
 		 */
-		set.###(new Aluno("2023001", "Maria"));
-		set.###(new Aluno("2023009", "João"));
-		set.###(new Aluno("2023001", "Miguel"));
+		set.add(new Aluno("2023001", "Maria"));
+		set.add(new Aluno("2023009", "João"));
+		set.add(new Aluno("2023001", "Miguel"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("TreeSet (nome) após primeira inserção\n");
@@ -149,9 +147,9 @@ public class TesteSet {
 		 * - Maria S.	2023001 (duplicado)
 		 * - Gessica	2023007
 		 */
-		set.###(new Aluno("2023005", "Joaquim"));
-		set.###(new Aluno("2023001", "Maria S."));
-		set.###(new Aluno("2023007", "Gessica"));
+		set.add(new Aluno("2023005", "Joaquim"));
+		set.add(new Aluno("2023001", "Maria S."));
+		set.add(new Aluno("2023007", "Gessica"));
 
 		// Impressão do conjunto de alunos
 		System.out.printf("\nTreeSet (nome) após segunda inserção\n");
@@ -159,7 +157,7 @@ public class TesteSet {
 	}
 
     // Imprime todos os alunos do conjunto
-	private static void imprimirAlunos(Set<###> set) {
+	private static void imprimirAlunos(Set<Aluno> set) {
 		System.out.printf("Lista de alunos\n");
 		int indice = 0;
 		for (Aluno aluno : set) {
