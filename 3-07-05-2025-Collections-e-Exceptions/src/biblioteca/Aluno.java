@@ -3,11 +3,11 @@ package biblioteca;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import exception.ExcecaoEmprestimo;
-import exception.LivroNuloException;
-import exception.LimiteEmprestimosException;
+
+import exception.EmprestimosExcedidoException;
+import exception.LivroInvalidoException;
 import exception.LivroJaEmprestadoException;
-import exception.OperacaoInvalidaException;
+import exception.LivroNaoEmPosseException;
 
 public class Aluno implements Comparable<Aluno> {
     private String matricula;
@@ -31,28 +31,28 @@ public class Aluno implements Comparable<Aluno> {
         return nome;
     }
     
-    public void emprestar(Livro livro) throws ExcecaoEmprestimo {
-        if (livro == null) throw new LivroNuloException();
-        if (emprestimos.size() >= LIMITE) throw new LimiteEmprestimosException();
+    public void emprestar(Livro livro) throws LivroInvalidoException, EmprestimosExcedidoException, LivroJaEmprestadoException {
+        if (livro == null) throw new LivroInvalidoException();
+        if (emprestimos.size() >= LIMITE) throw new EmprestimosExcedidoException();
         if (emprestimos.containsKey(livro)) throw new LivroJaEmprestadoException(livro.getTitulo());
         emprestimos.put(livro, 0);
         System.out.printf("%s emprestado para %s (%s)\n", livro, nome, matricula);
     }
 
-    public void renovar(Livro livro) throws ExcecaoEmprestimo {
-        if (livro == null) throw new LivroNuloException();
+    public void renovar(Livro livro) throws LivroInvalidoException, LivroNaoEmPosseException {
+        if (livro == null) throw new LivroInvalidoException();
         Integer ren = emprestimos.get(livro);
-        if (ren == null) throw new OperacaoInvalidaException(
+        if (ren == null) throw new LivroNaoEmPosseException(
             String.format("Erro: %s não pode ser renovado porque não está sob sua posse!\nTente emprestar o livro solicitado antes de renová-lo!", livro)
         );
         emprestimos.put(livro, ren + 1);
         System.out.printf("%s renovado para %s (%s)\n", livro, nome, matricula);
     }
 
-    public void devolver(Livro livro) throws ExcecaoEmprestimo {
-        if (livro == null) throw new LivroNuloException();
+    public void devolver(Livro livro) throws LivroInvalidoException, LivroNaoEmPosseException {
+        if (livro == null) throw new LivroInvalidoException();
         if (!emprestimos.containsKey(livro)) {
-            throw new OperacaoInvalidaException(
+            throw new LivroNaoEmPosseException(
                 String.format("Erro: %s não pode ser devolvido porque não está sob sua posse!\nTente emprestar o livro solicitado antes de devolvê-lo!", livro)
             );
         }

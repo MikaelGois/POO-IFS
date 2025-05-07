@@ -2,8 +2,6 @@
  * Classe de teste que demonstra o fluxo das operações de empréstimo, renovação e devolução de livros,
  * bem como o tratamento das diferentes exceções que podem ocorrer.
  */
-package src;
-
 import java.time.LocalDate;
 
 import biblioteca.Aluno;
