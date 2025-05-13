@@ -125,7 +125,7 @@ public class TesteSet {
     	System.out.println("\nParte 4: TreeSet com comparador por nome: ordenação alfabética de nomes\n");
 
 		// Definição de um conjunto baseado em um TreeSet
-		set = new TreeSet<>(Aluno.comparadorNome);
+		set = new TreeSet<>(Aluno.comparadorNome());
 
 		/*
 		 * Adição dos alunos no conjunto

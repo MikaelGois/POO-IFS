@@ -3,6 +3,7 @@ package biblioteca;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import exception.EmprestimosExcedidoException;
 import exception.LivroInvalidoException;
@@ -76,13 +77,20 @@ public class Aluno implements Comparable<Aluno> {
         if (!(obj instanceof Aluno)) return false;
         Aluno outro = (Aluno) obj;
         
-        return matricula.equals(outro.matricula);
+        return Objects.equals(matricula, outro.matricula);
     }
 
     @Override
     public int hashCode() {
-        return matricula.hashCode();
+        return Objects.hash(matricula);
     }
 
-    public static final Comparator<Aluno> comparadorNome = Comparator.comparing(Aluno::getNome).thenComparing(Aluno::getMatricula);
+    public static Comparator<Aluno> comparadorNome() {
+    	return  new Comparator<Aluno>() {
+    		@Override
+            public int compare(Aluno alunoA, Aluno alunoB) {
+                return alunoA.nome.compareTo(alunoB.nome);
+            }	
+    	};
+    }
 }

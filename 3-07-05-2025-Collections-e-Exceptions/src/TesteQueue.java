@@ -92,7 +92,7 @@ public class TesteQueue {
 		System.out.println("\nParte 3: Fila de prioridades com PriorityQueue com Comparator\n");
 
 		// PriorityQueue com comparador por nome
-		queue = new PriorityQueue<>(Aluno.comparadorNome);
+		queue = new PriorityQueue<>(Aluno.comparadorNome());
 
 		/*
 		 * Adição dos alunos na fila
