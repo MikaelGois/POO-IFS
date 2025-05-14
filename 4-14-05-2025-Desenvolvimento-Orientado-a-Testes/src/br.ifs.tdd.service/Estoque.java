@@ -11,6 +11,8 @@ import br.ifs.tdd.exception.ValidacaoException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.IOException;
+import java.nio.file.*;
 
 public class Estoque {
     private final Map<String, Produto> produtos = new HashMap<>();
@@ -45,22 +47,22 @@ public class Estoque {
 
     public Produto buscar(String idProduto) {
         if (idProduto == null || idProduto.isBlank()) {
-            throw new ValidacaoException("Identificador de produto inválido");
+            throw new ValidacaoException("Identificador de produto inválido"); // feito
         }
         Produto p = produtos.get(idProduto);
         if (p == null) {
-            throw new ProdutoNaoEncontradoException("Produto não encontrado");
+            throw new ProdutoNaoEncontradoException("Produto não encontrado"); // feito
         }
         return p;
     }
 
     public void atualizar(Produto produto) {
         if (produto == null) {
-            throw new ValidacaoException("Produto inválido");
+            throw new ValidacaoException("Produto inválido"); // feito
         }
         String id = produto.getIdentificador();
         if (!produtos.containsKey(id)) {
-            throw new ProdutoNaoEncontradoException("Produto não encontrado");
+            throw new ProdutoNaoEncontradoException("Produto não encontrado"); // feito
         }
         produtos.put(id, produto);
     }
@@ -68,13 +70,13 @@ public class Estoque {
     public void adicionar(String idProduto, int quantidade, LocalDate validade) {
         Produto p = buscar(idProduto);
         if (quantidade <= 0) {
-            throw new ValidacaoException("Quantidade inválida");
+            throw new ValidacaoException("Quantidade inválida"); // feito
         }
         if (validade == null) {
-            throw new ValidacaoException("Data de validade inválida");
+            throw new ValidacaoException("Data de validade inválida"); // feito
         }
         if (validade.isBefore(LocalDate.now())) {
-            throw new ValidacaoException("Data de validade vencida");
+            throw new ValidacaoException("Data de validade vencida"); // feito
         }
         Lote lote = new Lote(p, quantidade, validade);
         lotesPorProduto.get(idProduto).add(lote);
@@ -83,12 +85,12 @@ public class Estoque {
     public void retirar(String idProduto, int quantidade) {
         Produto p = buscar(idProduto);
         if (quantidade <= 0) {
-            throw new ValidacaoException("Quantidade inválida");
+            throw new ValidacaoException("Quantidade inválida"); // feito
         }
         List<Lote> lotes = lotesPorProduto.get(idProduto);
         int totalDisponivel = lotes.stream().mapToInt(Lote::getQuantidade).sum();
         if (quantidade > totalDisponivel) {
-            throw new EstoqueInsuficienteException("Estoque insuficiente");
+            throw new EstoqueInsuficienteException("Estoque insuficiente"); // feito
         }
         // ordena por validade ascendente
         List<Lote> ordenados = lotes.stream()
@@ -137,7 +139,7 @@ public class Estoque {
     }
 
     public String exibirRelatorioCSV() {
-        StringBuilder sb = new StringBuilder("id,nome,descricao,preco,quantidade,validade");
+        StringBuilder sb = new StringBuilder("id,nome,descricao,preco,quantidade,validade\n");
         for (String id : produtos.keySet()) {
             Produto p = produtos.get(id);
             for (Lote l : lotesPorProduto.get(id)) {
@@ -146,7 +148,7 @@ public class Estoque {
                         .append(p.getDescricao()).append(",")
                         .append(p.getPreco()).append(",")
                         .append(l.getQuantidade()).append(",")
-                        .append(l.getDataValidade()).append("");
+                        .append(l.getDataValidade());
             }
         }
         return sb.toString();
@@ -177,5 +179,21 @@ public class Estoque {
         }
         sb.append("]}");
         return sb.toString();
+    }
+
+    public void salvarEmArquivo(String nomeArquivo, String conteudo) throws IOException {
+        if (nomeArquivo == null || nomeArquivo.isBlank()) {
+            throw new ValidacaoException("Nome de arquivo inválido"); // feito
+        } else if (conteudo == null || conteudo.isBlank()) {
+            throw new ValidacaoException("Conteúdo inválido"); // feito
+        } else if (nomeArquivo.endsWith(".csv") || nomeArquivo.endsWith(".json")) {
+            try {
+                Path path = Paths.get("src/br.ifs.tdd.test/" + nomeArquivo);
+                Files.createDirectories(path.getParent());
+                Files.writeString(path, conteudo);
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao salvar arquivo: " + e.getMessage());
+            }
+        }
     }
 }
