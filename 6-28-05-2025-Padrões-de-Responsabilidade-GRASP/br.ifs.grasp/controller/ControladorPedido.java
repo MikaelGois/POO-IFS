@@ -4,23 +4,23 @@ import br.ifs.grasp.model.Pedido;
 import br.ifs.grasp.model.Produto;
 import br.ifs.grasp.model.Relatorio;
 import br.ifs.grasp.model.Usuario;
-import br.ifs.grasp.repository.Repositorio;
-import br.ifs.grasp.service.ServicoNotificacao;
-import br.ifs.grasp.service.ServicoPagamento;
-import br.ifs.grasp.service.ServicoRelatorio;
+import br.ifs.grasp.repository.IRepositorio;
+import br.ifs.grasp.service.INotificacao;
+import br.ifs.grasp.service.IPagamento;
+import br.ifs.grasp.service.IRelatorio;
 
 
 public class ControladorPedido {
-    private ServicoPagamento servicoPagamento;
-    private Repositorio repositorio;
-    private ServicoRelatorio servicoRelatorio;
-    private ServicoNotificacao servicoNotificacao;
+    private IPagamento servicoPagamento;
+    private IRepositorio repositorio;
+    private IRelatorio servicoRelatorio;
+    private INotificacao servicoNotificacao;
 
-    public ControladorPedido() {
-        this.servicoPagamento = new ServicoPagamento();
-        this.repositorio = new Repositorio();
-        this.servicoRelatorio = new ServicoRelatorio();
-        this.servicoNotificacao = new ServicoNotificacao();
+    public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio, IRelatorio servicoRelatorio, INotificacao servicoNotificacao) {
+        this.servicoPagamento = servicoPagamento;
+        this.repositorio = repositorio;
+        this.servicoRelatorio = servicoRelatorio;
+        this.servicoNotificacao = servicoNotificacao;
     }
 
     public Pedido iniciarPedido(Usuario solicitante) {
@@ -69,14 +69,14 @@ public class ControladorPedido {
         double totalFinal = calcularTotalPedido(pedido, cupomDesconto);
         System.out.println("Controlador: Total final calculado: R$ " + String.format("%.2f", totalFinal));
 
-        boolean pagamentoOk = this.servicoPagamento.processarPagamento(totalFinal);
+        boolean pagamentoOk = servicoPagamento.processarPagamento(totalFinal);
         if (!pagamentoOk) {
             System.out.println("Controlador: Falha ao processar pagamento. Pedido não finalizado.");
             return false;
         }
         System.out.println("Controlador: Pagamento processado com sucesso.");
 
-        boolean salvamentoOk = this.repositorio.salvarPedido(pedido);
+        boolean salvamentoOk = repositorio.salvarPedido(pedido);
         if (!salvamentoOk) {
             System.out.println("Erro: Falha ao salvar o pedido após pagamento. Registrar para verificação.");
 
@@ -84,11 +84,10 @@ public class ControladorPedido {
             System.out.println("Pedido salvo com sucesso.");
         }
 
-        Relatorio relatorio = this.servicoRelatorio.gerarRelatorio(pedido);
+        Relatorio relatorio = servicoRelatorio.gerarRelatorio(pedido);
         System.out.println("Relatório gerado.");
 
-        this.servicoNotificacao.enviarNotificacao(relatorio);
-        System.out.println("Notificação enviada.");
+        servicoNotificacao.enviarNotificacao(relatorio);
 
         System.out.println("Pedido finalizado com sucesso!");
         return true;

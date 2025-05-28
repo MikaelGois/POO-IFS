@@ -4,7 +4,8 @@ import br.ifs.grasp.model.Pedido;
 import br.ifs.grasp.model.ItemPedido;
 import br.ifs.grasp.model.Relatorio;
 
-public class ServicoRelatorio {
+public class ServicoRelatorio implements IRelatorio{
+    @Override
     public Relatorio gerarRelatorio(Pedido pedido) {
         String dados = "Relatório do Pedido:\nSolicitante: " + pedido.getSolicitante().getNome() +
                 "\nTotal: R$ " + String.format("%.2f", pedido.calcularTotal()) +
