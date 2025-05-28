@@ -8,7 +8,8 @@ import br.ifs.grasp.repository.IRepositorio;
 import br.ifs.grasp.service.INotificacao;
 import br.ifs.grasp.service.IPagamento;
 import br.ifs.grasp.service.IRelatorio;
-
+import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
+import br.ifs.grasp.service.desconto.SemDesconto;
 
 public class ControladorPedido {
     private IPagamento servicoPagamento;
@@ -16,7 +17,8 @@ public class ControladorPedido {
     private IRelatorio servicoRelatorio;
     private INotificacao servicoNotificacao;
 
-    public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio, IRelatorio servicoRelatorio, INotificacao servicoNotificacao) {
+    public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio,
+                             IRelatorio servicoRelatorio, INotificacao servicoNotificacao) {
         this.servicoPagamento = servicoPagamento;
         this.repositorio = repositorio;
         this.servicoRelatorio = servicoRelatorio;
@@ -42,32 +44,26 @@ public class ControladorPedido {
         return pedido.adicionarItem(produto, quantidade);
     }
 
-    public double calcularTotalPedido(Pedido pedido, String cupomDesconto) {
+    public double calcularTotalPedido(Pedido pedido, IEstrategiaDesconto estrategiaDesconto) {
         if (pedido == null) {
             System.out.println("Erro: Pedido nulo para calcular total.");
             return 0.0;
         }
-        double total = pedido.calcularTotal();
-        if (cupomDesconto != null && !cupomDesconto.isEmpty()) {
-            System.out.println("Controlador: Aplicando desconto (lógica a ser implementada com Polymorphism/Strategy) para o cupom: " + cupomDesconto);
-            // Exemplo muito simples:
-            if ("DESCONTO10".equals(cupomDesconto) && total > 0) {
-                total *= 0.9; // 10% de desconto
-            }
-        }
-        return total;
+        IEstrategiaDesconto estrategia = (estrategiaDesconto != null) ? estrategiaDesconto : new SemDesconto();
+        System.out.println("Calculando total do pedido com estrategia " + estrategia.getClass().getSimpleName());
+        return pedido.calcularTotal(estrategia);
     }
 
-    public boolean finalizarPedido(Pedido pedido, String cupomDesconto) {
+    public boolean finalizarPedido(Pedido pedido, IEstrategiaDesconto estrategiaDesconto) {
         if (pedido == null || pedido.getItens().isEmpty()) {
             System.out.println("Erro: Pedido nulo ou vazio, não pode ser finalizado.");
             return false;
         }
 
-        System.out.println("\nControlador: Iniciando finalização do pedido para " + pedido.getSolicitante().getNome());
+        System.out.println("\nIniciando finalização do pedido para " + pedido.getSolicitante().getNome());
 
-        double totalFinal = calcularTotalPedido(pedido, cupomDesconto);
-        System.out.println("Controlador: Total final calculado: R$ " + String.format("%.2f", totalFinal));
+        double totalFinal = calcularTotalPedido(pedido, estrategiaDesconto);
+        System.out.println("Total final calculado: R$ " + String.format("%.2f", totalFinal));
 
         boolean pagamentoOk = servicoPagamento.processarPagamento(totalFinal);
         if (!pagamentoOk) {

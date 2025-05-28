@@ -1,5 +1,8 @@
 package br.ifs.grasp.model;
 
+import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
+import br.ifs.grasp.service.desconto.SemDesconto;
+
 import java.util.List;
 
 public class Pedido {
@@ -18,12 +21,24 @@ public class Pedido {
         return itens.add(item);
     }
 
-    public double calcularTotal() {
-        double total = 0.0;
+    public double calcularTotalBruto() {
+        double totalBruto = 0.0;
         for (ItemPedido item : itens) {
-            total += item.calcularSubtotal();
+            totalBruto += item.calcularSubtotal();
         }
-        return total;
+        return totalBruto;
+    }
+
+    public double aplicarDesconto(double totalBruto, IEstrategiaDesconto estrategia) {
+        if (estrategia == null) {
+            return new SemDesconto().aplicarDesconto(totalBruto, this);
+        }
+        return estrategia.aplicarDesconto(totalBruto, this);
+    }
+
+    public double calcularTotal(IEstrategiaDesconto estrategia) {
+        double totalBruto = calcularTotalBruto();
+        return aplicarDesconto(totalBruto, estrategia);
     }
 
     public boolean finalizarPedido() {
@@ -44,10 +59,11 @@ public class Pedido {
 
     @Override
     public String toString() {
+        // Para exibir o total, precisaríamos de uma estratégia aqui,
+        // ou o toString calcularia o total bruto. Vamos manter simples por enquanto.
         return "Pedido{" +
                 "solicitante=" + (solicitante != null ? solicitante.getNome() : "null") +
                 ", numeroDeItens=" + itens.size() +
-                ", totalParcial=" + calcularTotal() +
                 '}';
     }
 }
