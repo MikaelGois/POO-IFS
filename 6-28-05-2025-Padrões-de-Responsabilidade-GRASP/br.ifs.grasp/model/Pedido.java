@@ -6,9 +6,8 @@ public class Pedido {
     private Usuario solicitante;
     private List<ItemPedido> itens;
 
-    public Pedido(Usuario solicitante, List<ItemPedido> itens) {
+    public Pedido(Usuario solicitante) {
         this.solicitante = solicitante;
-        this.itens = itens;
     }
 
     public boolean adicionarItem(Produto produto, int quantidade) {
