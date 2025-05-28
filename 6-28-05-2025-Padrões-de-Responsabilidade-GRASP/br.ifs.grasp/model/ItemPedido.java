@@ -10,6 +10,9 @@ public class ItemPedido {
     }
 
     public double calcularSubtotal() {
+        if (produto == null || quantidade <= 0) {
+            return 0.0; // Retorna 0 se o produto for nulo ou a quantidade for inválida
+        }
         return produto.getPreco() * quantidade;
     }
 
@@ -20,4 +23,12 @@ public class ItemPedido {
     // Setters
     public void setProduto(Produto produto) { this.produto = produto; }
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
+
+    @Override
+    public String toString() {
+        return "ItemPedido{" +
+                "quantidade=" + quantidade +
+                ", produto=" + (produto != null ? produto.getNome() : "null") +
+                '}';
+    }
 }

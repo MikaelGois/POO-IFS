@@ -27,11 +27,28 @@ public class Pedido {
         return total;
     }
 
+    public boolean finalizarPedido() {
+        if (itens.isEmpty()) {
+            System.out.println("Pedido vazio.");
+            return false;
+        }
+        System.out.println("Pedido finalizado.");
+        return true;
+    }
+
     // Getters
     public Usuario getSolicitante() { return solicitante; }
     public List<ItemPedido> getItens() { return itens; }
 
     // Setters
     public void setSolicitante(Usuario solicitante) { this.solicitante = solicitante; }
-    public void setItens(List<ItemPedido> itens) { this.itens = itens; }
+
+    @Override
+    public String toString() {
+        return "Pedido{" +
+                "solicitante=" + (solicitante != null ? solicitante.getNome() : "null") +
+                ", numeroDeItens=" + itens.size() +
+                ", totalParcial=" + calcularTotal() +
+                '}';
+    }
 }

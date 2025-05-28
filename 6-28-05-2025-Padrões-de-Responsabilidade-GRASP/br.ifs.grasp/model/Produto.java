@@ -24,4 +24,14 @@ public class Produto {
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
     public void setPreco(double preco) { this.preco = preco; }
     public void setNome(String nome) { this.nome = nome; }
+
+    @Override
+    public String toString() {
+        return "Produto{" +
+                "nome='" + nome + '\'' +
+                ", preco=" + preco +
+                ", quantidade=" + quantidade +
+                ", descricao='" + descricao + '\'' +
+                '}';
+    }
 }
