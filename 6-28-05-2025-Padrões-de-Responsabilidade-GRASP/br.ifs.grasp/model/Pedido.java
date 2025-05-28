@@ -11,12 +11,12 @@ public class Pedido {
         this.itens = itens;
     }
 
-    public boolean adicionarItem(ItemPedido item) {
-        if (item == null || itens.contains(item)) {
-            return false; // Não adiciona se o item for nulo ou já existir
+    public boolean adicionarItem(Produto produto, int quantidade) {
+        if (produto == null || quantidade <= 0) {
+            return false; // Produto ou quantidade inválida
         }
-        itens.add(item);
-        return true;
+        ItemPedido item = new ItemPedido(produto, quantidade);
+        return itens.add(item);
     }
 
     public double calcularTotal() {
