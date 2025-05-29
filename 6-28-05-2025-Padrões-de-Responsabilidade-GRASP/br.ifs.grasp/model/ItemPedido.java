@@ -13,7 +13,7 @@ public class ItemPedido {
         if (produto == null || quantidade <= 0) {
             return 0.0; // Retorna 0 se o produto for nulo ou a quantidade for inválida
         }
-        return produto.getPreco() * quantidade;
+        return this.produto.getPreco() * this.quantidade;
     }
 
     // Getters

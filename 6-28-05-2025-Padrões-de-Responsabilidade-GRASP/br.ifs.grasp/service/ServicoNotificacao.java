@@ -10,7 +10,7 @@ public class ServicoNotificacao implements INotificacao {
             return false;
         }
 
-        System.out.println("Enviando notificação: \n" + relatorio.getTemp());
+        System.out.println("Enviando notificação: \n" + relatorio.getDados());
         System.out.println("Notificação enviada com sucesso.");
         return true;
     }

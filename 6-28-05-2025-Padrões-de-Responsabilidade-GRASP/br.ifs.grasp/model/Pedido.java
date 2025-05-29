@@ -3,6 +3,7 @@ package br.ifs.grasp.model;
 import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
 import br.ifs.grasp.service.desconto.SemDesconto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
@@ -11,6 +12,7 @@ public class Pedido {
 
     public Pedido(Usuario solicitante) {
         this.solicitante = solicitante;
+        this.itens = new ArrayList<>();
     }
 
     public boolean adicionarItem(Produto produto, int quantidade) {
@@ -18,7 +20,7 @@ public class Pedido {
             return false; // Produto ou quantidade inválida
         }
         ItemPedido item = new ItemPedido(produto, quantidade);
-        return itens.add(item);
+        return this.itens.add(item);
     }
 
     public double calcularTotalBruto() {
@@ -42,7 +44,7 @@ public class Pedido {
     }
 
     public boolean finalizarPedido() {
-        if (itens.isEmpty()) {
+        if (this.itens.isEmpty()) {
             System.out.println("Pedido vazio.");
             return false;
         }
