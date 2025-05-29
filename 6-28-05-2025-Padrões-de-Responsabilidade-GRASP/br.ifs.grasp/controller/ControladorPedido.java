@@ -10,19 +10,24 @@ import br.ifs.grasp.service.IPagamento;
 import br.ifs.grasp.service.IRelatorio;
 import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
 import br.ifs.grasp.service.desconto.SemDesconto;
+import br.ifs.grasp.service.validation.IValidacao;
+import br.ifs.grasp.exception.ValidacaoException;
 
 public class ControladorPedido {
     private IPagamento servicoPagamento;
     private IRepositorio repositorio;
     private IRelatorio servicoRelatorio;
     private INotificacao servicoNotificacao;
+    private IValidacao servicoValidacao;
 
     public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio,
-                             IRelatorio servicoRelatorio, INotificacao servicoNotificacao) {
+                             IRelatorio servicoRelatorio, INotificacao servicoNotificacao,
+                             IValidacao servicoValidacao) {
         this.servicoPagamento = servicoPagamento;
         this.repositorio = repositorio;
         this.servicoRelatorio = servicoRelatorio;
         this.servicoNotificacao = servicoNotificacao;
+        this.servicoValidacao = servicoValidacao;
     }
 
     public Pedido iniciarPedido(Usuario solicitante) {
@@ -40,8 +45,17 @@ public class ControladorPedido {
             return false;
         }
 
-        System.out.println("Controlador: Adicionando produto " + produto.getNome() + " (qtd: " + quantidade + ") ao pedido de " + pedido.getSolicitante().getNome());
-        return pedido.adicionarItem(produto, quantidade);
+        try {
+            this.servicoValidacao.validarProduto(produto);
+            this.servicoValidacao.validarEstoque(produto, quantidade);
+
+            System.out.println("Adicionando produto " + produto.getNome() + " (qtd: " + quantidade + ") ao pedido de " + pedido.getSolicitante().getNome());
+            return pedido.adicionarItem(produto, quantidade);
+
+        } catch (ValidacaoException e) {
+            System.err.println("Falha ao tentar adicionar item - " + e.getMessage());
+            return false;
+        }
     }
 
     public double calcularTotalPedido(Pedido pedido, IEstrategiaDesconto estrategiaDesconto) {
