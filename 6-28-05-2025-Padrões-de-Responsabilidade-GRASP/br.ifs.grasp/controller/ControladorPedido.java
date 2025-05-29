@@ -1,5 +1,6 @@
 package br.ifs.grasp.controller;
 
+import br.ifs.grasp.model.Moeda;
 import br.ifs.grasp.model.Pedido;
 import br.ifs.grasp.model.Produto;
 import br.ifs.grasp.model.Relatorio;
@@ -8,6 +9,7 @@ import br.ifs.grasp.repository.IRepositorio;
 import br.ifs.grasp.service.INotificacao;
 import br.ifs.grasp.service.IPagamento;
 import br.ifs.grasp.service.IRelatorio;
+import br.ifs.grasp.service.cambio.IConversorMoeda;
 import br.ifs.grasp.service.desconto.IConfiguracaoDesconto;
 import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
 import br.ifs.grasp.service.validation.IValidacao;
@@ -20,30 +22,37 @@ public class ControladorPedido {
     private INotificacao servicoNotificacao;
     private IValidacao servicoValidacao;
     private IConfiguracaoDesconto servicoConfiguracaoDesconto;
+    private IConversorMoeda servicoConversorMoeda;
 
     public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio,
                              IRelatorio servicoRelatorio, INotificacao servicoNotificacao,
-                             IValidacao servicoValidacao, IConfiguracaoDesconto servicoConfiguracaoDesconto) {
+                             IValidacao servicoValidacao, IConfiguracaoDesconto servicoConfiguracaoDesconto,
+                             IConversorMoeda servicoConversorMoeda) {
         this.servicoPagamento = servicoPagamento;
         this.repositorio = repositorio;
         this.servicoRelatorio = servicoRelatorio;
         this.servicoNotificacao = servicoNotificacao;
         this.servicoValidacao = servicoValidacao;
         this.servicoConfiguracaoDesconto = servicoConfiguracaoDesconto;
+        this.servicoConversorMoeda = servicoConversorMoeda;
     }
 
-    public Pedido iniciarPedido(Usuario solicitante) {
+    public Pedido iniciarPedido(Usuario solicitante, String codigoMoedaDoPedido) {
         if (solicitante == null) {
-            System.out.println("Erro: Solicitante não pode ser vazio.");
+            System.err.println("Erro: Solicitante não pode ser vazio.");
             return null;
         }
-        System.out.println("Iniciando novo pedido para " + solicitante.getNome());
-        return new Pedido(solicitante);
+        if (codigoMoedaDoPedido == null || codigoMoedaDoPedido.trim().isEmpty()) {
+            System.err.println("Erro: Codigo da moeda do pedido não pode ser vazio.");
+            return null;
+        }
+        System.out.println("Iniciando novo pedido para " + solicitante.getNome() + " em " + codigoMoedaDoPedido);
+        return new Pedido(solicitante, codigoMoedaDoPedido, this.servicoConversorMoeda);
     }
 
     public boolean adicionarItemAoPedido(Pedido pedido, Produto produto, int quantidade) {
         if (pedido == null || produto == null || quantidade <= 0) {
-            System.out.println("Erro: Dados inválidos para adicionar item ao pedido.");
+            System.err.println("Erro: Dados inválidos para adicionar item ao pedido.");
             return false;
         }
 
@@ -60,38 +69,46 @@ public class ControladorPedido {
         }
     }
 
-    public double calcularTotalPedido(Pedido pedido, String cupomDesconto) {
+    public Moeda calcularTotalPedido(Pedido pedido, String cupomDesconto) {
         if (pedido == null) {
-            System.out.println("Erro: Pedido vazio.");
-            return 0.0;
+            System.err.println("Erro: Pedido vazio.");
+            return null;
         }
-        IEstrategiaDesconto estrategia = this.servicoConfiguracaoDesconto.getEstrategia(cupomDesconto);
-
-        System.out.println("Calculando total do pedido com cupom '" + cupomDesconto + "', estratégia: " + estrategia.getClass().getSimpleName());
-        return pedido.calcularTotal(estrategia);
+        try {
+            IEstrategiaDesconto estrategia = this.servicoConfiguracaoDesconto.getEstrategia(cupomDesconto);
+            System.out.println("Calculando total do pedido com cupom '" + cupomDesconto + "', estratégia: " + estrategia.getClass().getSimpleName());
+            return pedido.calcularTotal(estrategia);
+        } catch (Exception e) {
+            System.err.println("Erro ao calcular total do pedido - " + e.getMessage());
+            return null;
+        }
     }
 
-    public boolean finalizarPedido(Pedido pedido, String cupomDesconto) {
+    public boolean finalizarPedido(Pedido pedido, String cupomDesconto) throws Exception {
         if (pedido == null || pedido.getItens().isEmpty()) {
-            System.out.println("Erro: Pedido vazio, não pode ser finalizado.");
+            System.err.println("Erro: Pedido vazio, não pode ser finalizado.");
             return false;
         }
 
-        System.out.println("\nIniciando finalização do pedido para " + pedido.getSolicitante().getNome());
+        System.out.println("\nIniciando finalização do pedido para " + pedido.getSolicitante().getNome() + " em " + pedido.getCodigoMoedaCorrenteDoPedido());
 
-        double totalFinal = calcularTotalPedido(pedido, cupomDesconto);
-        System.out.println("Total final calculado: R$ " + String.format("%.2f", totalFinal));
+        Moeda totalFinal = calcularTotalPedido(pedido, cupomDesconto);
+        if (totalFinal == null) {
+            System.err.println("Não foi possível calcular o total final. Pedido não finalizado.");
+            return false;
+        }
+        System.out.println("Total final calculado: R$ " + totalFinal);
 
-        boolean pagamentoOk = this.servicoPagamento.processarPagamento(totalFinal);
+        boolean pagamentoOk = this.servicoPagamento.processarPagamento(totalFinal.getValor().doubleValue());
         if (!pagamentoOk) {
-            System.out.println("Controlador: Falha ao processar pagamento. Pedido não finalizado.");
+            System.err.println("Falha ao processar pagamento. Pedido não finalizado.");
             return false;
         }
-        System.out.println("Controlador: Pagamento processado com sucesso.");
+        System.out.println("Pagamento processado com sucesso.");
 
         boolean salvamentoOk = this.repositorio.salvarPedido(pedido);
         if (!salvamentoOk) {
-            System.out.println("Erro: Falha ao salvar o pedido após pagamento. Registrar para verificação.");
+            System.err.println("Erro: Falha ao salvar o pedido após pagamento. Registrar para verificação.");
 
         } else {
             System.out.println("Pedido salvo com sucesso.");
@@ -101,7 +118,6 @@ public class ControladorPedido {
         System.out.println("Relatório gerado.");
 
         this.servicoNotificacao.enviarNotificacao(relatorio);
-
         System.out.println("Pedido finalizado com sucesso!");
         return true;
     }

@@ -1,5 +1,7 @@
 package br.ifs.grasp.model;
 
+import java.math.BigDecimal;
+
 public class ItemPedido {
     private Produto produto;
     private int quantidade;
@@ -9,11 +11,12 @@ public class ItemPedido {
         this.quantidade = quantidade;
     }
 
-    public double calcularSubtotal() {
-        if (produto == null || quantidade <= 0) {
-            return 0.0; // Retorna 0 se o produto for nulo ou a quantidade for inválida
+    public Moeda calcularSubtotal() {
+        if (this.produto == null || this.produto.getPreco() == null) {
+            return new Moeda(BigDecimal.ZERO, "BRL");
         }
-        return this.produto.getPreco() * this.quantidade;
+        BigDecimal subtotalValor = this.produto.getPreco().getValor().multiply(BigDecimal.valueOf(this.quantidade));
+        return new Moeda(subtotalValor, this.produto.getPreco().getCodigoISO());
     }
 
     // Getters
@@ -29,6 +32,7 @@ public class ItemPedido {
         return "ItemPedido{" +
                 "quantidade=" + quantidade +
                 ", produto=" + (produto != null ? produto.getNome() : "null") +
+                ", subtotal=" + calcularSubtotal() +
                 '}';
     }
 }

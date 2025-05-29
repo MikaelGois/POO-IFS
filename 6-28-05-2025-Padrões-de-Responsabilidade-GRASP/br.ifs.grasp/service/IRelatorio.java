@@ -4,5 +4,5 @@ import br.ifs.grasp.model.Pedido;
 import br.ifs.grasp.model.Relatorio;
 
 public interface IRelatorio {
-    Relatorio gerarRelatorio(Pedido pedido);
+    Relatorio gerarRelatorio(Pedido pedido) throws Exception;
 }
