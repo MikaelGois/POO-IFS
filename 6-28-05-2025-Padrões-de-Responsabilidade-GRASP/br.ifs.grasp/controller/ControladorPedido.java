@@ -1,84 +1,114 @@
 package br.ifs.grasp.controller;
 
+import br.ifs.grasp.model.Moeda;
 import br.ifs.grasp.model.Pedido;
 import br.ifs.grasp.model.Produto;
 import br.ifs.grasp.model.Relatorio;
 import br.ifs.grasp.model.Usuario;
-import br.ifs.grasp.repository.Repositorio;
-import br.ifs.grasp.service.ServicoNotificacao;
-import br.ifs.grasp.service.ServicoPagamento;
-import br.ifs.grasp.service.ServicoRelatorio;
-
+import br.ifs.grasp.repository.IRepositorio;
+import br.ifs.grasp.service.INotificacao;
+import br.ifs.grasp.service.IPagamento;
+import br.ifs.grasp.service.IRelatorio;
+import br.ifs.grasp.service.cambio.IConversorMoeda;
+import br.ifs.grasp.service.desconto.IConfiguracaoDesconto;
+import br.ifs.grasp.service.desconto.IEstrategiaDesconto;
+import br.ifs.grasp.service.validation.IValidacao;
+import br.ifs.grasp.exception.ValidacaoException;
 
 public class ControladorPedido {
-    private ServicoPagamento servicoPagamento;
-    private Repositorio repositorio;
-    private ServicoRelatorio servicoRelatorio;
-    private ServicoNotificacao servicoNotificacao;
+    private IPagamento servicoPagamento;
+    private IRepositorio repositorio;
+    private IRelatorio servicoRelatorio;
+    private INotificacao servicoNotificacao;
+    private IValidacao servicoValidacao;
+    private IConfiguracaoDesconto servicoConfiguracaoDesconto;
+    private IConversorMoeda servicoConversorMoeda;
 
-    public ControladorPedido() {
-        this.servicoPagamento = new ServicoPagamento();
-        this.repositorio = new Repositorio();
-        this.servicoRelatorio = new ServicoRelatorio();
-        this.servicoNotificacao = new ServicoNotificacao();
+    public ControladorPedido(IPagamento servicoPagamento, IRepositorio repositorio,
+                             IRelatorio servicoRelatorio, INotificacao servicoNotificacao,
+                             IValidacao servicoValidacao, IConfiguracaoDesconto servicoConfiguracaoDesconto,
+                             IConversorMoeda servicoConversorMoeda) {
+        this.servicoPagamento = servicoPagamento;
+        this.repositorio = repositorio;
+        this.servicoRelatorio = servicoRelatorio;
+        this.servicoNotificacao = servicoNotificacao;
+        this.servicoValidacao = servicoValidacao;
+        this.servicoConfiguracaoDesconto = servicoConfiguracaoDesconto;
+        this.servicoConversorMoeda = servicoConversorMoeda;
     }
 
-    public Pedido iniciarPedido(Usuario solicitante) {
+    public Pedido iniciarPedido(Usuario solicitante, String codigoMoedaDoPedido) {
         if (solicitante == null) {
-            System.out.println("Erro: Solicitante não pode ser nulo.");
+            System.err.println("Erro: Solicitante não pode ser vazio.");
             return null;
         }
-        System.out.println("Iniciando novo pedido para " + solicitante.getNome());
-        return new Pedido(solicitante);
+        if (codigoMoedaDoPedido == null || codigoMoedaDoPedido.trim().isEmpty()) {
+            System.err.println("Erro: Codigo da moeda do pedido não pode ser vazio.");
+            return null;
+        }
+        System.out.println("Iniciando novo pedido para " + solicitante.getNome() + " em " + codigoMoedaDoPedido);
+        return new Pedido(solicitante, codigoMoedaDoPedido, this.servicoConversorMoeda);
     }
 
     public boolean adicionarItemAoPedido(Pedido pedido, Produto produto, int quantidade) {
         if (pedido == null || produto == null || quantidade <= 0) {
-            System.out.println("Erro: Dados inválidos para adicionar item ao pedido.");
+            System.err.println("Erro: Dados inválidos para adicionar item ao pedido.");
             return false;
         }
 
-        System.out.println("Controlador: Adicionando produto " + produto.getNome() + " (qtd: " + quantidade + ") ao pedido de " + pedido.getSolicitante().getNome());
-        return pedido.adicionarItem(produto, quantidade);
+        try {
+            this.servicoValidacao.validarProduto(produto);
+            this.servicoValidacao.validarEstoque(produto, quantidade);
+
+            System.out.println("Adicionando produto " + produto.getNome() + " (qtd: " + quantidade + ") ao pedido de " + pedido.getSolicitante().getNome());
+            return pedido.adicionarItem(produto, quantidade);
+
+        } catch (ValidacaoException e) {
+            System.err.println("Falha ao tentar adicionar item - " + e.getMessage());
+            return false;
+        }
     }
 
-    public double calcularTotalPedido(Pedido pedido, String cupomDesconto) {
+    public Moeda calcularTotalPedido(Pedido pedido, String cupomDesconto) {
         if (pedido == null) {
-            System.out.println("Erro: Pedido nulo para calcular total.");
-            return 0.0;
+            System.err.println("Erro: Pedido vazio.");
+            return null;
         }
-        double total = pedido.calcularTotal();
-        if (cupomDesconto != null && !cupomDesconto.isEmpty()) {
-            System.out.println("Controlador: Aplicando desconto (lógica a ser implementada com Polymorphism/Strategy) para o cupom: " + cupomDesconto);
-            // Exemplo muito simples:
-            if ("DESCONTO10".equals(cupomDesconto) && total > 0) {
-                total *= 0.9; // 10% de desconto
-            }
+        try {
+            IEstrategiaDesconto estrategia = this.servicoConfiguracaoDesconto.getEstrategia(cupomDesconto);
+            System.out.println("Calculando total do pedido com cupom '" + cupomDesconto + "', estratégia: " + estrategia.getClass().getSimpleName());
+            return pedido.calcularTotal(estrategia);
+        } catch (Exception e) {
+            System.err.println("Erro ao calcular total do pedido - " + e.getMessage());
+            return null;
         }
-        return total;
     }
 
-    public boolean finalizarPedido(Pedido pedido, String cupomDesconto) {
+    public boolean finalizarPedido(Pedido pedido, String cupomDesconto) throws Exception {
         if (pedido == null || pedido.getItens().isEmpty()) {
-            System.out.println("Erro: Pedido nulo ou vazio, não pode ser finalizado.");
+            System.err.println("Erro: Pedido vazio, não pode ser finalizado.");
             return false;
         }
 
-        System.out.println("\nControlador: Iniciando finalização do pedido para " + pedido.getSolicitante().getNome());
+        System.out.println("\nIniciando finalização do pedido para " + pedido.getSolicitante().getNome() + " em " + pedido.getCodigoMoedaCorrenteDoPedido());
 
-        double totalFinal = calcularTotalPedido(pedido, cupomDesconto);
-        System.out.println("Controlador: Total final calculado: R$ " + String.format("%.2f", totalFinal));
+        Moeda totalFinal = calcularTotalPedido(pedido, cupomDesconto);
+        if (totalFinal == null) {
+            System.err.println("Não foi possível calcular o total final. Pedido não finalizado.");
+            return false;
+        }
+        System.out.println("Total final calculado: R$ " + totalFinal);
 
-        boolean pagamentoOk = this.servicoPagamento.processarPagamento(totalFinal);
+        boolean pagamentoOk = this.servicoPagamento.processarPagamento(totalFinal.getValor().doubleValue());
         if (!pagamentoOk) {
-            System.out.println("Controlador: Falha ao processar pagamento. Pedido não finalizado.");
+            System.err.println("Falha ao processar pagamento. Pedido não finalizado.");
             return false;
         }
-        System.out.println("Controlador: Pagamento processado com sucesso.");
+        System.out.println("Pagamento processado com sucesso.");
 
         boolean salvamentoOk = this.repositorio.salvarPedido(pedido);
         if (!salvamentoOk) {
-            System.out.println("Erro: Falha ao salvar o pedido após pagamento. Registrar para verificação.");
+            System.err.println("Erro: Falha ao salvar o pedido após pagamento. Registrar para verificação.");
 
         } else {
             System.out.println("Pedido salvo com sucesso.");
@@ -88,8 +118,6 @@ public class ControladorPedido {
         System.out.println("Relatório gerado.");
 
         this.servicoNotificacao.enviarNotificacao(relatorio);
-        System.out.println("Notificação enviada.");
-
         System.out.println("Pedido finalizado com sucesso!");
         return true;
     }
